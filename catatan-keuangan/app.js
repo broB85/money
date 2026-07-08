@@ -39,6 +39,7 @@ function checkAuthStatus() {
         if (appWrapper) appWrapper.style.display = 'block';
         loadDataFromLocalStorage();
         updateDashboardUI();
+        loadDataFromGoogleSheets(); // Ambil data terupdate dari Google Sheets
     } else {
         if (loginContainer) loginContainer.style.display = 'flex';
         if (appWrapper) appWrapper.style.display = 'none';
@@ -74,6 +75,8 @@ function handleLogout() {
     }
 }
 
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzr0mHnCCbg8RpXXS-BBX6i_HFAMOM2q6CCxlU3U61a2q_ZrE0pem5V_z6sm2DigaQXUA/exec';
+
 function loadDataFromLocalStorage() {
     // Force-clear old legacy dummy data from previous versions once
     if (!localStorage.getItem('fina_cleared_v2')) {
@@ -88,9 +91,57 @@ function loadDataFromLocalStorage() {
     if (savedLoans) state.loans = JSON.parse(savedLoans);
 }
 
+async function loadDataFromGoogleSheets() {
+    try {
+        console.log('Fetching latest data from Google Sheets...');
+        const response = await fetch(SCRIPT_URL);
+        if (!response.ok) throw new Error('Gagal mengambil data dari Google Sheets');
+        const data = await response.json();
+        
+        if (data.transactions) state.transactions = data.transactions;
+        if (data.loans) state.loans = data.loans;
+        
+        // Save to cache local storage
+        localStorage.setItem('fina_transactions', JSON.stringify(state.transactions));
+        localStorage.setItem('fina_loans', JSON.stringify(state.loans));
+        
+        updateDashboardUI();
+        if (document.getElementById('transactions-section').classList.contains('active')) {
+            renderTransactionTable();
+        }
+        if (document.getElementById('loans-section').classList.contains('active')) {
+            renderLoanTable();
+        }
+        console.log('Data Google Sheets berhasil disinkronkan ke aplikasi.');
+    } catch (error) {
+        console.error('Koneksi Google Sheets gagal:', error);
+    }
+}
+
 function saveDataToLocalStorage() {
     localStorage.setItem('fina_transactions', JSON.stringify(state.transactions));
     localStorage.setItem('fina_loans', JSON.stringify(state.loans));
+    saveDataToGoogleSheets();
+}
+
+async function saveDataToGoogleSheets() {
+    try {
+        console.log('Mengirim data terbaru ke Google Sheets...');
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Menggunakan no-cors untuk menghindari pemblokiran CORS browser saat POST ke Google Apps Script
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                transactions: state.transactions,
+                loans: state.loans
+            })
+        });
+        console.log('Data berhasil disimpan ke Google Sheets (proses latar belakang).');
+    } catch (error) {
+        console.error('Gagal mengirim data ke Google Sheets:', error);
+    }
 }
 
 /* ==========================================
