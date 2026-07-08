@@ -46,7 +46,7 @@ let cashflowChart = null;
 let categoryChart = null;
 
 const OWNER_USERNAME = "pakdol";
-const OWNER_PASSWORD = "asd123";
+const OWNER_PASSWORD = "123asd";
 
 /* ==========================================
    APP INIT & EVENT LISTENERS
