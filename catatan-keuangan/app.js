@@ -1,4 +1,34 @@
 /* ==========================================
+   CONSOLE LOCK & ANTI-INSPECT JOKE
+   ========================================== */
+// Blokir Klik Kanan
+document.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    showHayoWarning();
+});
+
+// Blokir Keyboard Shortcut (F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U)
+document.addEventListener('keydown', (e) => {
+    if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'i' || e.key === 'j')) ||
+        (e.ctrlKey && (e.key === 'U' || e.key === 'u'))
+    ) {
+        e.preventDefault();
+        showHayoWarning();
+    }
+});
+
+function showHayoWarning() {
+    console.clear();
+    console.log("%cHayo Ngapain?! 👀", "color: #ff3333; font-family: 'Outfit', sans-serif; font-size: 55px; font-weight: bold; text-shadow: 3px 3px 0px #000;");
+    console.log("%cBrankas DollarVault ini diawasi ketat oleh CCTV Federal Pak Dol. Jangan coba-coba mengintip kode! 👮‍♂️🔒", "color: #ffcc00; font-size: 16px; font-weight: bold; background: #111; padding: 12px; border-radius: 6px; border: 2px solid #ffcc00; font-family: 'Outfit', sans-serif;");
+}
+
+// Jalankan warning sejak awal agar console selalu bersih
+showHayoWarning();
+
+/* ==========================================
    APP STATE & INITIAL DATA
    ========================================== */
 let state = {
